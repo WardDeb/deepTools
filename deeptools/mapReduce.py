@@ -1,6 +1,6 @@
-import multiprocessing
-from deeptoolsintervals import GTF
+from concurrent.futures import ThreadPoolExecutor
 import random
+from deeptoolsintervals import GTF
 
 debug = 0
 
@@ -138,10 +138,8 @@ def mapReduce(staticArgs, func, chromSize,
                    "number of tasks".format(numberOfProcessors,
                                             len(TASKS))))
         random.shuffle(TASKS)
-        pool = multiprocessing.Pool(numberOfProcessors)
-        res = pool.map_async(func, TASKS).get(9999999)
-        pool.close()
-        pool.join()
+        with ThreadPoolExecutor(max_workers=numberOfProcessors) as executor:
+            res = list(executor.map(func, TASKS))
     else:
         res = list(map(func, TASKS))
 
